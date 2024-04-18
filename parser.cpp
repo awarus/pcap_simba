@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     }
 
     std::string pcap_fname = argv[1];
-    std::string save_fname = argc == 3? argv[2] : pcap_fname + ".out";
+    std::string save_fname = argc == 3? argv[2] : pcap_fname + ".json";
 
     std::cout << "save fname: " << save_fname << std::endl;
 
@@ -60,6 +60,13 @@ int main(int argc, char *argv[])
         return -ENOENT;
     }
 
+    /* find the size of the file */
+    std::streampos currentPos = in_stream.tellg();
+    in_stream.seekg(0, std::ios::end);
+    std::streampos totalSize = in_stream.tellg();
+    in_stream.seekg(currentPos);
+
+    display_percent_done(currentPos, totalSize);
     char *packet_block = new char[sizeof(pcap_fheader_t)];
     in_stream.read(packet_block, sizeof(pcap_fheader_t));
 
@@ -93,6 +100,8 @@ int main(int argc, char *argv[])
         in_stream.read(data_block, p_packet->p_len_captured);
         p_packet->data = data_block;
         parse_pcap_packet(reinterpret_cast<pcap_packet_t*>(packet_block), out_stream, pheader.ltype);
+        currentPos = in_stream.tellg();
+        display_percent_done(currentPos, totalSize);
     }
 
     delete [] data_block;

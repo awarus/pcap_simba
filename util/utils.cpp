@@ -1,10 +1,18 @@
 #include <chrono>
 #include <cstdint>
 #include <iomanip>
+#include <iostream>
 #include <string>
 #include <sstream>
 
 #include "utils.hpp"
+
+void display_percent_done(std::streampos currentPos, std::streampos totalSize)
+{
+    double progress = static_cast<double>(currentPos) / totalSize * 100.0;
+    std::cout << "\r";
+    std::cout << "Parsing progress: " << std::fixed << std::setprecision(2) << progress << "%" << std::flush;
+}
 
 std::string get_string_ns(uint64_t ns_time)
 {

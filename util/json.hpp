@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 #include <sstream>
 #include <unordered_map>
@@ -13,39 +14,63 @@ public:
 
     json_t& add_double(const std::string& key, double value)
     {
-        data[key] = std::to_string(value);
+        data[key].push_back(std::to_string(value));
         return *this;
     }
 
-
     json_t& add(const std::string& key, std::string value)
     {
-        data[key] = value;
+        data[key].push_back(value);
         return *this;
     }
 
     json_t& add(const std::string& key, uint64_t value)
     {
-        data[key] = std::to_string(value);
+        data[key].push_back(std::to_string(value));
         return *this;
     }
 
     json_t& add(const std::string& key, const json_t& value)
     {
-        data[key] = value.to_string();
+        data[key].push_back(value.to_string());
         return *this;
+    }
+
+    void append(const std::string& key, std::string value)
+    {
+        data[key].push_back(value);
+    }
+
+    void append(const std::string& key, const json_t &value)
+    {
+        data[key].push_back(value.to_string());
     }
 
     std::string to_string() const {
         std::ostringstream oss;
         oss << "{";
         bool first = true;
-        for (const auto& pair : data) {
-            if (!first) {
+        for (const auto &pair : data) {
+            if (!first)
                 oss << ",";
-            }
+
             oss << "\"" << pair.first << "\":";
-            oss << "\"" << pair.second << "\"";
+
+            if (pair.second.size() == 1)
+            {
+                oss << "\"" << pair.second.front() << "\"";
+            } else {
+                oss << "[";
+                for (int i = 0; i < pair.second.size(); i++)
+                {
+                    oss << "\"" << pair.second[i] << "\"";
+                    if (i != pair.second.size() - 1)
+                        oss << ",";
+                }
+
+                oss << "]";
+            }
+
             first = false;
         }
         oss << "}";
@@ -53,7 +78,7 @@ public:
     }
 
 private:
-    std::unordered_map<std::string, std::string> data;
+    std::unordered_map<std::string, std::vector<std::string>> data;
 };
 
 #endif /* json_t_UTIL */

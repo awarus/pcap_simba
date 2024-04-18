@@ -11,5 +11,6 @@
 
 std::string get_string_ns(uint64_t ns_time);
 double get_decimal_val(decimal5_t dec);
+void display_percent_done(std::streampos currentPos, std::streampos totalSize);
 
 #endif
