@@ -14,15 +14,11 @@ smb_decoder_t::process(void *data_ptr, size_t len) noexcept
 {
     smb_mdata_header_t *smh = reinterpret_cast<smb_mdata_header_t *>(data_ptr);
 
-    processed += get_string_ns(smh->stime) + " num: " + std::to_string(smh->msg_seq_num)
-                 + ", size: " + std::to_string(smh->msg_size) + " flags " + std::to_string(smh->msg_flags);
-
     std::bitset<16> m_flags = smh->msg_flags;
     void *ndata = reinterpret_cast<char*>(data_ptr) + sizeof(smb_mdata_header_t);
     size_t nsize = smh->msg_size - sizeof(smb_mdata_header_t); /* MsgSize, without the smb_mdata_header_t */
     if (m_flags.test(3))
     {
-        processed += " Type: inc, size: " + std::to_string(smh->msg_size) + ";";
         if (unlikely(smh->msg_size < sizeof(smb_mdata_header_t) + sizeof(smb_inc_header_t)))
         {
             processed += "size mismatch, skip";

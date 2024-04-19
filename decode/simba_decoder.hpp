@@ -7,7 +7,7 @@
 
 static std::string get_state_string(uint64_t md_field, uint64_t md_field2)
 {
-    std::string state_string;
+    std::string state_string = "[\"";
     /* Function to add state to the string if the corresponding bit is set */
     auto addState = [&](uint64_t mask, const std::string& state_name) {
         if ((md_field & mask) || (md_field2 & mask)) {
@@ -38,7 +38,7 @@ static std::string get_state_string(uint64_t md_field, uint64_t md_field2)
     addState(0x1000000000000000, "Book-or-cancel order (Passive only)");
     addState(0x4000000000000000, "Sign of an order/trade during the opening auction");
 
-    return std::move(state_string);
+    return state_string + "\"]";
 }
 
 class smb_decoder_t
@@ -66,7 +66,7 @@ public:
         order_update_nj.add("md_entry_id",        smou->md_entry_id);
         order_update_nj.add("md_entry_px",        get_decimal_val(smou->md_entry_px));
         order_update_nj.add("md_entry_size",      smou->md_entry_size);
-        order_update_nj.add("md_flags",           "[\"" + get_state_string(smou->md_flags, smou->md_flags2) + "\"]");
+        order_update_nj.add("md_flags",           get_state_string(smou->md_flags, smou->md_flags2));
         order_update_nj.add("sec_id",             smou->sec_id);
         order_update_nj.add("rpt_seq",            smou->rpt_seq);
 
@@ -99,7 +99,7 @@ public:
         order_exec_nj.add_double("md_entry_px", get_decimal_val(soem->last_px));
         order_exec_nj.add("last_qty",           soem->last_qty);
         order_exec_nj.add("trade_id",           soem->trade_id);
-        order_exec_nj.add("md_flags",           "[\"" + get_state_string(soem->md_flags, soem->md_flags2) + "\"]");
+        order_exec_nj.add("md_flags",           get_state_string(soem->md_flags, soem->md_flags2));
         order_exec_nj.add("sec_id",             soem->sec_id);
         order_exec_nj.add("rpt_seq",            soem->rpt_seq);
 
@@ -144,8 +144,8 @@ public:
             md_entry_j.add_double("md_entry_px",     get_decimal_val(sobm->md_entry.md_entry_px));
             md_entry_j.add("md_entry_size",          sobm->md_entry.md_entry_size);
             md_entry_j.add("trade_id",               sobm->md_entry.trade_id);
-            md_entry_j.add("md_flags", "[\"" + get_state_string(sobm->md_entry.md_flags,
-                                                                sobm->md_entry.md_flags2) + "\"]");
+            md_entry_j.add("md_flags",               get_state_string(sobm->md_entry.md_flags,
+                                                                      sobm->md_entry.md_flags2));
             if (sobm->md_entry.md_entry_type == '0')
                 md_entry_j.add("md_entry_type", "Bid");
             else if (sobm->md_entry.md_entry_type == '1')
